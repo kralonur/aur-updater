@@ -1,6 +1,6 @@
 pub mod cli;
+pub mod config;
 pub mod telemetry;
-// FIXME: implement
 pub mod updater;
 
 use clap::Parser;
