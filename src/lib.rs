@@ -1,5 +1,6 @@
 pub mod cli;
 pub mod config;
+pub mod pkgbuild;
 pub mod telemetry;
 pub mod updater;
 
