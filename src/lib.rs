@@ -13,9 +13,9 @@ use cli::Cli;
 pub use updater::{RunOptions, run};
 
 pub fn cli_main() -> updater::Result<()> {
+    let cli = Cli::parse();
     telemetry::init_tracing(env!("CARGO_PKG_NAME"), "info");
 
-    let cli = Cli::parse();
     run(RunOptions {
         config_path: cli.config,
         package_filter: cli.package,
