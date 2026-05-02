@@ -2,6 +2,7 @@ pub mod arch;
 pub mod cli;
 pub mod config;
 pub mod pkgbuild;
+pub mod sources;
 pub mod telemetry;
 pub mod updater;
 
