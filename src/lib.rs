@@ -6,19 +6,28 @@ pub mod sources;
 pub mod telemetry;
 pub mod updater;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::generate;
+use std::io;
 
-use cli::Cli;
+use cli::{Cli, Command};
 
 pub use updater::{RunOptions, run};
 
 pub fn cli_main() -> updater::Result<()> {
-    let cli = Cli::parse();
-    telemetry::init_tracing(env!("CARGO_PKG_NAME"), "info");
-
-    run(RunOptions {
-        config_path: cli.config,
-        package_filter: cli.package,
-        dry_run: cli.dry_run,
-    })
+    match Cli::parse().command {
+        Command::Completions { shell } => {
+            generate(shell, &mut Cli::command(), "aur-updater", &mut io::stdout());
+            Ok(())
+        }
+        Command::Update(args) => {
+            telemetry::init_tracing(env!("CARGO_PKG_NAME"), "info");
+            run(RunOptions {
+                config_path: args.config,
+                package_filter: args.package,
+                dry_run: args.dry_run,
+            })?;
+            Ok(())
+        }
+    }
 }

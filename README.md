@@ -10,13 +10,13 @@ It reads a TOML config, checks upstream versions, updates `pkgver` in each
 
 ```bash
 # Update every enabled package in the config.
-aur-updater --config packages.toml
+aur-updater update --config packages.toml
 
 # Update only one package.
-aur-updater --config packages.toml --package openai-codex-bin
+aur-updater update --config packages.toml --package openai-codex-bin
 
 # Check versions and tools without editing files.
-aur-updater --config packages.toml --dry-run
+aur-updater update --config packages.toml --dry-run
 ```
 
 Run it from an environment with Arch packaging tools available:
@@ -105,7 +105,7 @@ The intended setup is a separate AUR maintenance repo that downloads a released
   env:
     # Optional: used only to raise GitHub API rate limits for github_release.
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: ./aur-updater --config packages.toml
+  run: ./aur-updater update --config packages.toml
 ```
 
 After the updater runs, let the workflow commit changed `PKGBUILD` and
