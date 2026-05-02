@@ -30,8 +30,14 @@ pub enum Error {
     #[error("[{package}] path is required")]
     MissingPackagePath { package: String },
 
-    #[error("[{package}] repo is required for github_release source")]
+    #[error("[{package}] repo is required for GitHub sources")]
     MissingGithubRepo { package: String },
+
+    #[error("[{package}] git_url is required for git source")]
+    MissingGitUrl { package: String },
+
+    #[error("[{package}] base_version is required because version_template uses {{base}}")]
+    MissingBaseVersion { package: String },
 
     #[error("[{package}] npm_package is required for npm source")]
     MissingNpmPackage { package: String },
@@ -55,6 +61,14 @@ pub struct PackageConfig {
     #[serde(default)]
     pub npm_package: Option<String>,
     #[serde(default)]
+    pub git_url: Option<String>,
+    #[serde(default)]
+    pub branch: Option<String>,
+    #[serde(default)]
+    pub version_template: Option<String>,
+    #[serde(default)]
+    pub base_version: Option<String>,
+    #[serde(default)]
     pub strip_prefixes: Vec<String>,
     #[serde(default)]
     pub exclude_tags: Vec<String>,
@@ -66,6 +80,7 @@ pub struct PackageConfig {
 #[serde(rename_all = "snake_case")]
 pub enum SourceKind {
     GithubRelease,
+    Git,
     Npm,
 }
 
@@ -98,6 +113,22 @@ impl Config {
                 });
             }
 
+            if package
+                .version_template
+                .as_deref()
+                .is_some_and(|template| template.contains("{base}"))
+                && package
+                    .base_version
+                    .as_deref()
+                    .unwrap_or_default()
+                    .trim()
+                    .is_empty()
+            {
+                return Err(Error::MissingBaseVersion {
+                    package: package.name.clone(),
+                });
+            }
+
             match package.source {
                 SourceKind::GithubRelease => {
                     if package
@@ -108,6 +139,19 @@ impl Config {
                         .is_empty()
                     {
                         return Err(Error::MissingGithubRepo {
+                            package: package.name.clone(),
+                        });
+                    }
+                }
+                SourceKind::Git => {
+                    if package
+                        .git_url
+                        .as_deref()
+                        .unwrap_or_default()
+                        .trim()
+                        .is_empty()
+                    {
+                        return Err(Error::MissingGitUrl {
                             package: package.name.clone(),
                         });
                     }
@@ -158,6 +202,14 @@ mod tests {
             source = "npm"
             npm_package = "@agentclientprotocol/claude-agent-acp"
             enabled = false
+
+            [[package]]
+            name = "my-generic-git-package"
+            path = "aur/my-generic-git-package"
+            source = "git"
+            git_url = "https://gitlab.com/example/project.git"
+            branch = "master"
+            version_template = "r{rev}.{sha7}"
             "#,
         )
         .unwrap();
@@ -166,6 +218,7 @@ mod tests {
         assert_eq!(config.packages[0].source, SourceKind::GithubRelease);
         assert!(!config.packages[1].enabled);
         assert_eq!(config.packages[1].source, SourceKind::Npm);
+        assert_eq!(config.packages[2].source, SourceKind::Git);
     }
 
     #[test]

@@ -1,5 +1,9 @@
+mod git;
 mod github;
 mod npm;
+mod version_template;
+
+use std::{io, path::PathBuf, process::ExitStatus};
 
 use reqwest::blocking::Client;
 use reqwest::header::InvalidHeaderValue;
@@ -11,8 +15,11 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("[{package}] repo is required for github_release source")]
+    #[error("[{package}] repo is required for GitHub sources")]
     MissingGithubRepo { package: String },
+
+    #[error("[{package}] git_url is required for git source")]
+    MissingGitUrl { package: String },
 
     #[error("[{package}] npm_package is required for npm source")]
     MissingNpmPackage { package: String },
@@ -39,6 +46,39 @@ pub enum Error {
 
     #[error("[{package}] could not find a non-draft, non-prerelease GitHub release")]
     NoSuitableGithubRelease { package: String },
+
+    #[error("[{package}] base_version is required because version_template uses {{base}}")]
+    MissingBaseVersion { package: String },
+
+    #[error("[{package}] failed to create temporary git directory {path}")]
+    CreateGitTempDir {
+        package: String,
+        path: PathBuf,
+        #[source]
+        source: io::Error,
+    },
+
+    #[error("[{package}] failed to run git command: {command}")]
+    GitCommand {
+        package: String,
+        command: String,
+        #[source]
+        source: io::Error,
+    },
+
+    #[error("[{package}] git command failed with {status}: {command}\n{stderr}")]
+    GitCommandFailed {
+        package: String,
+        command: String,
+        status: ExitStatus,
+        stderr: String,
+    },
+
+    #[error("[{package}] git commit date is not in the expected format: {date}")]
+    InvalidGitCommitDate { package: String, date: String },
+
+    #[error("[{package}] git revision count is not a number: {revision}")]
+    InvalidGitRevision { package: String, revision: String },
 
     #[error("GITHUB_TOKEN contains characters invalid for an HTTP header")]
     InvalidGithubToken {
@@ -82,6 +122,7 @@ impl SourceClient {
     pub fn latest_version(&self, package: &PackageConfig) -> Result<String> {
         match package.source {
             SourceKind::GithubRelease => github::latest_release_version(&self.http, package),
+            SourceKind::Git => git::latest_version(package),
             SourceKind::Npm => npm::latest_version(&self.http, package),
         }
     }
