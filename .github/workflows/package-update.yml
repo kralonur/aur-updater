@@ -1,0 +1,88 @@
+name: Package Updates
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - examples/**
+      - .github/workflows/package-update.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: package-update-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CONFIG_PATH: examples/packages.toml
+  UPDATER_URL: https://github.com/kralonur/aur-updater/releases/latest/download/aur-updater-x86_64-unknown-linux-musl
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Install system packages
+        run: pacman -Syu --noconfirm --needed base-devel git curl npm pacman-contrib
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          set-safe-directory: true
+
+      - name: Prepare build user
+        run: |
+          id pkgbuild >/dev/null 2>&1 || useradd --create-home --shell /bin/bash pkgbuild
+          chown -R pkgbuild:pkgbuild "$GITHUB_WORKSPACE"
+
+      - name: Download updater
+        run: |
+          curl -fsSL "$UPDATER_URL" -o updater
+          chmod +x updater
+          chown pkgbuild:pkgbuild updater
+
+      - name: Run updater
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          runuser --preserve-environment -u pkgbuild -- bash <<'EOF'
+          set -euo pipefail
+          export HOME=/home/pkgbuild
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          ./updater update --config "$CONFIG_PATH" --changed-packages-out /tmp/changed-packages
+          EOF
+
+      - name: Build commit message
+        run: |
+          set -euo pipefail
+          if [[ ! -s /tmp/changed-packages ]]; then
+            printf '%s\n' "chore: update packages" >/tmp/package-update-commit-message
+            exit 0
+          fi
+
+          package_updates=$(awk 'BEGIN { ORS = "" } { if (NR > 1) printf ", "; printf "%s to %s", $1, $2 }' /tmp/changed-packages)
+          printf 'chore: update %s\n' "$package_updates" >/tmp/package-update-commit-message
+
+      - name: Commit changes
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --name-only -z --diff-filter=ACMRT -- ':(glob)**/PKGBUILD' ':(glob)**/.SRCINFO' |
+            xargs -0 -r git add --
+
+          if ! git diff --cached --quiet; then
+            git commit -m "$(cat /tmp/package-update-commit-message)"
+            git push origin HEAD
+          fi
