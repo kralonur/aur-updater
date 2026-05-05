@@ -1,0 +1,14 @@
+pkgbase = openai-codex-git
+	pkgdesc = Package example description
+	pkgver = r6160.91b7350
+	pkgrel = 1
+	url = https://github.com/openai/codex
+	arch = x86_64
+	arch = aarch64
+	license = Example
+	makedepends = git
+	depends = glibc
+	source = openai-codex-git::git+https://github.com/openai/codex.git
+	sha256sums = SKIP
+
+pkgname = openai-codex-git

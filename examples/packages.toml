@@ -1,0 +1,24 @@
+[[package]]
+name = "openai-codex-bin"
+path = "examples/aur/openai-codex-bin"
+source = "github_release"
+repo = "openai/codex"
+strip_prefixes = ["rust-", "v"]
+exclude_tags = ["nightly", "preview"]
+reset_pkgrel = true
+
+[[package]]
+name = "openai-codex-npm"
+path = "examples/aur/openai-codex-npm"
+source = "npm"
+npm_package = "@openai/codex"
+reset_pkgrel = true
+
+[[package]]
+name = "openai-codex-git"
+path = "examples/aur/openai-codex-git"
+source = "git"
+git_url = "https://github.com/openai/codex.git"
+branch = "main"
+version_template = "r{rev}.{sha7}"
+reset_pkgrel = true
