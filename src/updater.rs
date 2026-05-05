@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+};
 
 use thiserror::Error;
 use tracing::{info, warn};
@@ -38,6 +41,13 @@ pub enum Error {
     #[error("PKGBUILD does not exist: {path}")]
     MissingPkgbuildFile { path: PathBuf },
 
+    #[error("failed to write changed packages to {path}")]
+    WriteChangedPackages {
+        path: PathBuf,
+        #[source]
+        source: io::Error,
+    },
+
     #[error("[{package}] update failed")]
     PackageUpdate {
         package: String,
@@ -60,6 +70,7 @@ pub struct RunOptions {
     pub config_path: PathBuf,
     pub package_filter: Option<String>,
     pub dry_run: bool,
+    pub changed_packages_out: Option<PathBuf>,
 }
 
 #[derive(Debug)]
@@ -70,7 +81,19 @@ struct PackageOutcome {
     changed: bool,
 }
 
-pub fn run(options: RunOptions) -> Result<()> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UpdateSummary {
+    pub changed_packages: Vec<ChangedPackage>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChangedPackage {
+    pub name: String,
+    pub old_version: String,
+    pub new_version: String,
+}
+
+pub fn run(options: RunOptions) -> Result<UpdateSummary> {
     let config = Config::from_path(&options.config_path)?;
 
     if options.dry_run {
@@ -88,7 +111,13 @@ pub fn run(options: RunOptions) -> Result<()> {
     }
 
     print_summary(&outcomes, options.dry_run);
-    Ok(())
+    let summary = UpdateSummary::from_outcomes(&outcomes);
+
+    if let Some(path) = &options.changed_packages_out {
+        summary.write_changed_packages(path)?;
+    }
+
+    Ok(summary)
 }
 
 fn selected_packages<'a>(
@@ -196,5 +225,91 @@ fn print_summary(outcomes: &[PackageOutcome], dry_run: bool) {
             "  - {}: {} -> {}",
             outcome.name, outcome.old_version, outcome.new_version
         );
+    }
+}
+
+impl UpdateSummary {
+    fn from_outcomes(outcomes: &[PackageOutcome]) -> Self {
+        let changed_packages = outcomes
+            .iter()
+            .filter(|outcome| outcome.changed)
+            .map(|outcome| ChangedPackage {
+                name: outcome.name.clone(),
+                old_version: outcome.old_version.clone(),
+                new_version: outcome.new_version.clone(),
+            })
+            .collect();
+
+        Self { changed_packages }
+    }
+
+    fn write_changed_packages(&self, path: &Path) -> Result<()> {
+        let mut contents = self
+            .changed_packages
+            .iter()
+            .map(|package| format!("{}\t{}", package.name, package.new_version))
+            .collect::<Vec<_>>()
+            .join("\n");
+        if !contents.is_empty() {
+            contents.push('\n');
+        }
+
+        fs::write(path, contents).map_err(|source| Error::WriteChangedPackages {
+            path: path.to_owned(),
+            source,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{env, fs};
+
+    use super::*;
+
+    #[test]
+    fn writes_changed_packages_with_new_versions() {
+        let path = env::temp_dir().join(format!(
+            "aur-updater-changed-packages-{}",
+            std::process::id()
+        ));
+        let summary = UpdateSummary {
+            changed_packages: vec![
+                ChangedPackage {
+                    name: "first".to_owned(),
+                    old_version: "1.0.0".to_owned(),
+                    new_version: "1.1.0".to_owned(),
+                },
+                ChangedPackage {
+                    name: "second".to_owned(),
+                    old_version: "2.0.0".to_owned(),
+                    new_version: "2.1.0".to_owned(),
+                },
+            ],
+        };
+
+        summary.write_changed_packages(&path).unwrap();
+
+        assert_eq!(
+            fs::read_to_string(&path).unwrap(),
+            "first\t1.1.0\nsecond\t2.1.0\n"
+        );
+        fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn writes_empty_changed_package_file_when_nothing_changed() {
+        let path = env::temp_dir().join(format!(
+            "aur-updater-no-changed-packages-{}",
+            std::process::id()
+        ));
+        let summary = UpdateSummary {
+            changed_packages: Vec::new(),
+        };
+
+        summary.write_changed_packages(&path).unwrap();
+
+        assert_eq!(fs::read_to_string(&path).unwrap(), "");
+        fs::remove_file(path).unwrap();
     }
 }

@@ -34,4 +34,11 @@ pub struct UpdateArgs {
     /// Check versions and tools without changing files
     #[arg(long)]
     pub dry_run: bool,
+
+    /// Write changed packages, one per line, to this file
+    ///
+    /// Each line is tab-separated as: package name, new version.
+    /// In dry-run mode, writes packages that would change.
+    #[arg(long, value_name = "PATH")]
+    pub changed_packages_out: Option<PathBuf>,
 }

@@ -12,7 +12,7 @@ use std::io;
 
 use cli::{Cli, Command};
 
-pub use updater::{RunOptions, run};
+pub use updater::{ChangedPackage, RunOptions, UpdateSummary, run};
 
 pub fn cli_main() -> updater::Result<()> {
     match Cli::parse().command {
@@ -26,6 +26,7 @@ pub fn cli_main() -> updater::Result<()> {
                 config_path: args.config,
                 package_filter: args.package,
                 dry_run: args.dry_run,
+                changed_packages_out: args.changed_packages_out,
             })?;
             Ok(())
         }
