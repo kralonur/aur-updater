@@ -181,3 +181,8 @@ base_version = "0.13.0"
 This repository includes a tag-based release workflow that builds
 `aur-updater-x86_64-unknown-linux-musl` and uploads it as a GitHub Release
 asset.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for test requirements, commit message
+rules, and pull request guidelines.
