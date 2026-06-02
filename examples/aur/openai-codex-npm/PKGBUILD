@@ -2,7 +2,7 @@
 
 pkgname=openai-codex-npm
 _npmname=codex
-pkgver=0.135.0
+pkgver=0.136.0
 pkgrel=1
 pkgdesc='Package example description'
 arch=('x86_64' 'aarch64')
@@ -11,7 +11,7 @@ license=('Example')
 depends=('glibc')
 source=("$_npmname-$pkgver.tgz::https://registry.npmjs.org/@openai/$_npmname/-/$_npmname-$pkgver.tgz")
 noextract=("$_npmname-$pkgver.tgz")
-sha256sums=('58ad17eb08ad645c967abfcaa233be391a0bda432f9b3c9bcf4c6c66d0b8fba7')
+sha256sums=('be52f5f3875f57293232d8a2d33cb49cff72e467d92f3f16a5117be5fbb6ead5')
 
 package() {
   :
