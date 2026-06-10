@@ -1,14 +1,14 @@
 pkgbase = openai-codex-npm
 	pkgdesc = Package example description
-	pkgver = 0.138.0
+	pkgver = 0.139.0
 	pkgrel = 1
 	url = https://github.com/openai/codex
 	arch = x86_64
 	arch = aarch64
 	license = Example
 	depends = glibc
-	noextract = codex-0.138.0.tgz
-	source = codex-0.138.0.tgz::https://registry.npmjs.org/@openai/codex/-/codex-0.138.0.tgz
-	sha256sums = aef3a3d77b038470120651b35c911053f0033ccbd1427eeff0d5fcf270b7009a
+	noextract = codex-0.139.0.tgz
+	source = codex-0.139.0.tgz::https://registry.npmjs.org/@openai/codex/-/codex-0.139.0.tgz
+	sha256sums = 52ff8eab5eaefd248dadd608c734089015619357e9fab1356c5b751e97a78079
 
 pkgname = openai-codex-npm
