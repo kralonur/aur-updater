@@ -1,6 +1,6 @@
 pkgbase = openai-codex-git
 	pkgdesc = Package example description
-	pkgver = r7345.7c23948
+	pkgver = r7376.5a56caf
 	pkgrel = 1
 	url = https://github.com/openai/codex
 	arch = x86_64
