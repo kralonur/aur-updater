@@ -1,7 +1,7 @@
 # Maintainer: Example <example@example.com>
 
 pkgname=openai-codex-git
-pkgver=r7913.6b5f574
+pkgver=r7915.ccdfb4f
 pkgrel=1
 pkgdesc='Package example description'
 arch=('x86_64' 'aarch64')
