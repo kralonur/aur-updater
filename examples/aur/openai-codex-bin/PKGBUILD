@@ -1,7 +1,7 @@
 # Maintainer: Example <example@example.com>
 
 pkgname=openai-codex-bin
-pkgver=0.144.3
+pkgver=0.144.4
 pkgrel=1
 pkgdesc='Package example description'
 arch=('x86_64' 'aarch64')
@@ -12,8 +12,8 @@ depends=('glibc')
 source_x86_64=(
   "codex-${pkgver}-x86_64.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-x86_64-unknown-linux-musl.tar.gz"
 )
-sha256sums_x86_64=('b9b4ae8e9b561c64dfbc5ef52c6319cba750ac87de3c7f55885026231e3aea89')
-sha256sums_aarch64=('dd76cfd5a2cf9bcf0e3224afe28e23065cfd27262e06e0ffbc8fa40343f0905a')
+sha256sums_x86_64=('37c985be9d89e8c4f43b3aa0594c1213eac212d30ae2b95221f08fec807515d1')
+sha256sums_aarch64=('4d07243ef4ae6786b8b321d7aea3f9be4e1d2c597ae5407e7c1b9873334082b2')
 
 source_aarch64=(
   "codex-${pkgver}-aarch64.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-aarch64-unknown-linux-musl.tar.gz"
