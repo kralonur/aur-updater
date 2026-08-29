@@ -1,15 +1,15 @@
 pkgbase = openai-codex-bin
 	pkgdesc = Package example description
-	pkgver = 0.150.1
+	pkgver = 0.151.0
 	pkgrel = 1
 	url = https://github.com/openai/codex
 	arch = x86_64
 	arch = aarch64
 	license = Example
 	depends = glibc
-	source_x86_64 = codex-0.150.1-x86_64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.150.1/codex-x86_64-unknown-linux-musl.tar.gz
-	sha256sums_x86_64 = ab308870bc7fc048c23dc49d03f6b8af9ce7fc99b9da882d6688be7a90155c7a
-	source_aarch64 = codex-0.150.1-aarch64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.150.1/codex-aarch64-unknown-linux-musl.tar.gz
-	sha256sums_aarch64 = 5bb1f75e1a1588845b4a31f2c98fb2b394be5c2a8d90a24a8ab0ebbae1169264
+	source_x86_64 = codex-0.151.0-x86_64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.151.0/codex-x86_64-unknown-linux-musl.tar.gz
+	sha256sums_x86_64 = 605b4b183f22c645f5def63a5b7191767407fb66a6feaec4eaf10b5b7e0058f6
+	source_aarch64 = codex-0.151.0-aarch64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.151.0/codex-aarch64-unknown-linux-musl.tar.gz
+	sha256sums_aarch64 = c1cf2baf375e261c1469381a52dc2c8fd05b6fb45cfff83fed0988fd6c5369b6
 
 pkgname = openai-codex-bin
