@@ -12,15 +12,15 @@ cargo fmt --check
 cargo test
 ```
 
-If you add a new source type, include a matching example package and verify that
-example locally. From the new example package directory, check that Arch can
-parse the package metadata:
+If you add a new source type, verify it locally against a real package
+directory. See
+[kralonur/my-aur-packages](https://github.com/kralonur/my-aur-packages) for
+real-world examples. From the package directory, check that Arch can parse the
+package metadata:
 
 ```bash
 makepkg --printsrcinfo
 ```
-
-Run that command from the changed package directory.
 
 For new source types, small focused tests are strongly encouraged. They help
 future contributors understand the source behavior, version parsing, version

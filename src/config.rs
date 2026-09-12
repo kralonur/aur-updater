@@ -189,10 +189,10 @@ mod tests {
         let config: Config = toml::from_str(
             r#"
             [[package]]
-            name = "openai-codex-bin"
-            path = "aur/openai-codex-bin"
+            name = "example-github-release"
+            path = "aur/example-github-release"
             source = "github_release"
-            repo = "openai/codex"
+            repo = "owner/project"
             strip_prefixes = ["rust-v", "v"]
             exclude_tags = ["nightly"]
 

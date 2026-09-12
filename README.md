@@ -6,6 +6,12 @@ It reads a TOML config, checks upstream versions, updates `pkgver` in each
 `PKGBUILD`, optionally resets `pkgrel=1`, then regenerates checksums and
 `.SRCINFO`.
 
+## Real-World Example
+
+[kralonur/my-aur-packages](https://github.com/kralonur/my-aur-packages) uses
+this updater in production. It is the best place to see a real `packages.toml`,
+update workflow, and AUR synchronization setup.
+
 ## Usage
 
 ```bash
@@ -92,16 +98,12 @@ git -C your-package push
 
 ## GitHub Actions
 
-For GitHub-based automation, check `.github/workflows/package-update.yml`.
+For a complete automation example, see the
+[update workflow](https://github.com/kralonur/my-aur-packages/blob/main/.github/workflows/update.yml)
+in [kralonur/my-aur-packages](https://github.com/kralonur/my-aur-packages).
 
-It is a real workflow for this repository's `examples/packages.toml`, and it is
-also the copyable workflow for other maintainers. Copy it into your maintenance
-repository, then adjust `CONFIG_PATH` and the `push.paths` entries to match your
-package layout.
-
-The PKGBUILDs in `examples/` are intentionally simple and are not meant to be
-complete packaging recipes. Their purpose is to show package version updates,
-checksum refreshes, and `.SRCINFO` generation for each supported source type.
+Copy it into your maintenance repository, then adjust `CONFIG_PATH` and the
+`push.paths` entries to match your package layout.
 
 Minimal workflow step:
 
